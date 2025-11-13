@@ -14,7 +14,13 @@
             const headers = rows[0].split(',').map(h => h.trim());
             const dataRows = rows.slice(1).map(r => r.split(',').map(c => c.trim()));
 
-            const labels = dataRows.map(r => r[0]); // Time
+            // Convert timestamps to ISO 8601
+            const labels = dataRows.map(r => {
+                const parts = r[0].split(' ');
+                const dateParts = parts[0].split('/');
+                return `20${dateParts[2]}-${dateParts[0].padStart(2,'0')}-${dateParts[1].padStart(2,'0')}T${parts[1]}`;
+            });
+
             const totalFlash = dataRows.map(r => parseFloat(r[1]));
             const totalRAMNoOverlay = dataRows.map(r => parseFloat(r[2]));
             const totalRAMWithOverlay = dataRows.map(r => parseFloat(r[3]));
@@ -40,7 +46,12 @@
                         title: { display: true, text: 'caniq Resource Usage Over Time', font: { size: 20 } }
                     },
                     scales: {
-                        x: { title: { display: true, text: 'Timestamp', font: { size: 16 } }, ticks: { font: { size: 12 } } },
+                        x: {
+                            type: 'time',
+                            time: { parser: 'YYYY-MM-DDTHH:mm:ss', tooltipFormat: 'MMM DD HH:mm:ss' },
+                            title: { display: true, text: 'Timestamp', font: { size: 16 } },
+                            ticks: { font: { size: 12 } }
+                        },
                         yFlash: {
                             type: 'linear',
                             position: 'right',
@@ -56,7 +67,7 @@
                             grid: { drawOnChartArea: false }
                         }
                     },
-                    elements: { point: { radius: 3 } } // show points clearly
+                    elements: { point: { radius: 3 } }
                 }
             };
 
