@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>caniq Resource Usage Metrics</title>
+    <script src="chart.umd.min.js"></script>
+</head>
+<body>
+    <canvas id="usageChart" width="800" height="400"></canvas>
+    <script>
+        const labels = ['09/09/2025 11:29:09', '09/09/2025 11:29:11', '09/09/2025 11:29:13', '09/09/2025 14:34:20', '09/09/2025 14:34:28', '09/09/2025 14:34:33', '09/09/2025 14:34:36'];
+        const data = {
+            labels: labels,
+            datasets: [
+                { 
+                    label: 'Total Flash', data: [851340, 851340, 851340, 851340, 851340, 851340, 851340],  borderColor: 'red',  fill: false, yAxisID: 'yFlash'   // <-- Flash axis
+                },
+                { 
+                    label: 'Total RAM (no overlay)', data: [632780, 632780, 632780, 632780, 632780, 632780, 632780], borderColor: 'green', fill: false, yAxisID: 'yRam'
+                },
+                { 
+                    label: 'Total RAM (with overlay)', data: [632780, 632780, 632780, 632780, 632780, 632780, 632780], borderColor: 'blue', fill: false, yAxisID: 'yRam'
+                }
+            ]
+        };
+
+        const config = {
+            type: 'line',
+            data: data,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {position: 'top', labels: {font: {size: 16}}},
+                    title: {display: true, text: 'caniq Resource Usage Over Time', font: {size: 25}}
+                },
+                scales: {
+                    x: {
+                        title: {display: true, text: 'Timestamp', font: {size: 25}},
+                        ticks: {font: {size: 14}}
+                    },
+                    yFlash: {
+                        type: 'linear',
+                        position: 'right',
+                        title: {display: true, text: 'Flash (Bytes)', font: {size: 25}, color: 'red'},
+                        ticks: {font: {size: 14}, color: 'red'},
+                        grid: { color: 'rgba(255,0,0,0.2)' }  // faint red grid
+                    },
+                    yRam: {
+                        type: 'linear',
+                        position: 'left',
+                        title: {display: true, text: 'RAM (Bytes)', font: {size: 25}, color: 'black'},
+                        ticks: {font: {size: 14}, color: 'black'},
+                        grid: { drawOnChartArea: false } // no overlap with Flash grid
+                    }
+                }
+            }
+        };
+        new Chart(document.getElementById('usageChart'), config);
+    </script>
+</body>
+</html>
