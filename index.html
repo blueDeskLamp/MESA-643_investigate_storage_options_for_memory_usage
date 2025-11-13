@@ -3,6 +3,7 @@
 <head>
     <title>caniq Resource Usage Metrics</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 </head>
 <body>
     <canvas id="usageChart" width="1000" height="500"></canvas>
@@ -14,11 +15,10 @@
             const headers = rows[0].split(',').map(h => h.trim());
             const dataRows = rows.slice(1).map(r => r.split(',').map(c => c.trim()));
 
-            // Convert timestamps to ISO 8601
             const labels = dataRows.map(r => {
-                const parts = r[0].split(' ');
-                const dateParts = parts[0].split('/');
-                return `20${dateParts[2]}-${dateParts[0].padStart(2,'0')}-${dateParts[1].padStart(2,'0')}T${parts[1]}`;
+                const [date, time] = r[0].split(' ');
+                const [month, day, year] = date.split('/');
+                return `20${year}-${month.padStart(2,'0')}-${day.padStart(2,'0')}T${time}`;
             });
 
             const totalFlash = dataRows.map(r => parseFloat(r[1]));
@@ -48,7 +48,11 @@
                     scales: {
                         x: {
                             type: 'time',
-                            time: { parser: 'YYYY-MM-DDTHH:mm:ss', tooltipFormat: 'MMM DD HH:mm:ss' },
+                            time: {
+                                parser: 'yyyy-MM-dd\'T\'HH:mm:ss',
+                                tooltipFormat: 'MMM dd HH:mm:ss',
+                                displayFormats: { minute: 'HH:mm:ss' }
+                            },
                             title: { display: true, text: 'Timestamp', font: { size: 16 } },
                             ticks: { font: { size: 12 } }
                         },
