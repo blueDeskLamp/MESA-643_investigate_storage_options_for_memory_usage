@@ -4,23 +4,20 @@
     <title>caniq Resource Usage Metrics</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+
 </head>
 <body>
     <canvas id="usageChart" width="1000" height="500"></canvas>
     <script>
         fetch('https://raw.githubusercontent.com/blueDeskLamp/MESA-643_investigate_storage_options_for_memory_usage/main/data.csv')
+
         .then(res => res.text())
         .then(text => {
             const rows = text.trim().split('\n');
             const headers = rows[0].split(',').map(h => h.trim());
             const dataRows = rows.slice(1).map(r => r.split(',').map(c => c.trim()));
 
-            const labels = dataRows.map(r => {
-                const [date, time] = r[0].split(' ');
-                const [month, day, year] = date.split('/');
-                return `20${year}-${month.padStart(2,'0')}-${day.padStart(2,'0')}T${time}`;
-            });
-
+            const labels = dataRows.map(r => r[0]); // Time
             const totalFlash = dataRows.map(r => parseFloat(r[1]));
             const totalRAMNoOverlay = dataRows.map(r => parseFloat(r[2]));
             const totalRAMWithOverlay = dataRows.map(r => parseFloat(r[3]));
@@ -46,16 +43,16 @@
                         title: { display: true, text: 'caniq Resource Usage Over Time', font: { size: 20 } }
                     },
                     scales: {
+
                         x: {
                             type: 'time',
-                            time: {
-                                parser: 'yyyy-MM-dd\'T\'HH:mm:ss',
-                                tooltipFormat: 'MMM dd HH:mm:ss',
-                                displayFormats: { minute: 'HH:mm:ss' }
-                            },
+                            time: { tooltipFormat: 'MMM dd HH:mm:ss',displayFormats: { minute: 'HH:mm:ss' }},
                             title: { display: true, text: 'Timestamp', font: { size: 16 } },
                             ticks: { font: { size: 12 } }
                         },
+
+                        //x: { title: {display: true, text: 'Timestamp', font: {size: 25}},ticks: {font: {size: 14}}},
+                        //x: { title: { display: true, text: 'Timestamp', font: { size: 16 } }, ticks: { font: { size: 12 } } },
                         yFlash: {
                             type: 'linear',
                             position: 'right',
@@ -71,7 +68,7 @@
                             grid: { drawOnChartArea: false }
                         }
                     },
-                    elements: { point: { radius: 3 } }
+                    elements: { point: { radius: 3 } } // show points clearly
                 }
             };
 
