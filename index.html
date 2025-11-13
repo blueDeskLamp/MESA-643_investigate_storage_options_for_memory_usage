@@ -1,46 +1,67 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>CSV Dashboard</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>caniq Resource Usage Metrics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <h2>Memory Usage Dashboard</h2>
-  <canvas id="chart"></canvas>
-  <script>
-    // Fetch CSV from raw GitHub URL
-    fetch('https://raw.githubusercontent.com/blueDeskLamp/MESA-643_investigate_storage_options_for_memory_usage/main/data.csv')
-      .then(res => res.text())
-      .then(text => {
-        const rows = text.trim().split('\n');
-        const headers = rows[0].split(',').map(h => h.trim());
-        const dataRows = rows.slice(1).map(r => r.split(',').map(c => c.trim()));
+    <canvas id="usageChart" width="1000" height="500"></canvas>
+    <script>
+        fetch('https://raw.githubusercontent.com/blueDeskLamp/MESA-643_investigate_storage_options_for_memory_usage/main/data.csv')
+        .then(res => res.text())
+        .then(text => {
+            const rows = text.trim().split('\n');
+            const headers = rows[0].split(',').map(h => h.trim());
+            const dataRows = rows.slice(1).map(r => r.split(',').map(c => c.trim()));
 
-        const labels = dataRows.map(r => r[0]); // Time column
-        const datasets = [];
+            const labels = dataRows.map(r => r[0]); // Time
+            const totalFlash = dataRows.map(r => parseFloat(r[1]));
+            const totalRAMNoOverlay = dataRows.map(r => parseFloat(r[2]));
+            const totalRAMWithOverlay = dataRows.map(r => parseFloat(r[3]));
+            const savedRAM = dataRows.map(r => parseFloat(r[4]));
 
-        // Create a dataset for each numeric column
-        for(let i = 1; i < headers.length; i++) {
-          datasets.push({
-            label: headers[i],
-            data: dataRows.map(r => parseFloat(r[i])),
-            borderColor: `hsl(${i * 80 % 360}, 70%, 50%)`,
-            fill: false,
-          });
-        }
+            const data = {
+                labels: labels,
+                datasets: [
+                    { label: 'Total Flash', data: totalFlash, borderColor: 'red', fill: false, yAxisID: 'yFlash', pointRadius: 3 },
+                    { label: 'Total RAM (no overlay)', data: totalRAMNoOverlay, borderColor: 'green', fill: false, yAxisID: 'yRam', pointRadius: 3 },
+                    { label: 'Total RAM (with overlay)', data: totalRAMWithOverlay, borderColor: 'blue', fill: false, yAxisID: 'yRam', pointRadius: 3 },
+                    { label: 'Saved RAM', data: savedRAM, borderColor: 'orange', fill: false, yAxisID: 'yRam', pointRadius: 3 }
+                ]
+            };
 
-        new Chart(document.getElementById('chart').getContext('2d'), {
-          type: 'line',
-          data: { labels, datasets },
-          options: {
-            responsive: true,
-            interaction: { mode: 'index', intersect: false },
-            stacked: false,
-            plugins: { title: { display: true, text: 'Memory Usage Over Time' } },
-            scales: { y: { beginAtZero: true } }
-          }
+            const config = {
+                type: 'line',
+                data: data,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top', labels: { font: { size: 14 } } },
+                        title: { display: true, text: 'caniq Resource Usage Over Time', font: { size: 20 } }
+                    },
+                    scales: {
+                        x: { title: { display: true, text: 'Timestamp', font: { size: 16 } }, ticks: { font: { size: 12 } } },
+                        yFlash: {
+                            type: 'linear',
+                            position: 'right',
+                            title: { display: true, text: 'Flash (Bytes)', font: { size: 16 }, color: 'red' },
+                            ticks: { color: 'red', font: { size: 12 } },
+                            grid: { color: 'rgba(255,0,0,0.2)' }
+                        },
+                        yRam: {
+                            type: 'linear',
+                            position: 'left',
+                            title: { display: true, text: 'RAM (Bytes)', font: { size: 16 }, color: 'black' },
+                            ticks: { color: 'black', font: { size: 12 } },
+                            grid: { drawOnChartArea: false }
+                        }
+                    },
+                    elements: { point: { radius: 3 } } // show points clearly
+                }
+            };
+
+            new Chart(document.getElementById('usageChart'), config);
         });
-      });
-  </script>
+    </script>
 </body>
 </html>
