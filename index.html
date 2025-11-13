@@ -5,17 +5,40 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+  <h2>Memory Usage Dashboard</h2>
   <canvas id="chart"></canvas>
   <script>
-    fetch('https://raw.githubusercontent.com/blueDeskLamp/MESA-643_investigate_storage_options_for_memory_usage/main/data.csv')
+    // Fetch CSV from raw GitHub URL
+    fetch('https://raw.githubusercontent.com/YourUser/YourRepo/main/data.csv')
       .then(res => res.text())
       .then(text => {
-        const rows = text.split('\n').map(r => r.split(','));
-        const labels = rows.slice(1).map(r => r[0]);
-        const values = rows.slice(1).map(r => parseFloat(r[1]));
+        const rows = text.trim().split('\n');
+        const headers = rows[0].split(',').map(h => h.trim());
+        const dataRows = rows.slice(1).map(r => r.split(',').map(c => c.trim()));
+
+        const labels = dataRows.map(r => r[0]); // Time column
+        const datasets = [];
+
+        // Create a dataset for each numeric column
+        for(let i = 1; i < headers.length; i++) {
+          datasets.push({
+            label: headers[i],
+            data: dataRows.map(r => parseFloat(r[i])),
+            borderColor: `hsl(${i * 80 % 360}, 70%, 50%)`,
+            fill: false,
+          });
+        }
+
         new Chart(document.getElementById('chart').getContext('2d'), {
-          type: 'bar',
-          data: { labels: labels, datasets: [{ label: 'Value', data: values }] }
+          type: 'line',
+          data: { labels, datasets },
+          options: {
+            responsive: true,
+            interaction: { mode: 'index', intersect: false },
+            stacked: false,
+            plugins: { title: { display: true, text: 'Memory Usage Over Time' } },
+            scales: { y: { beginAtZero: true } }
+          }
         });
       });
   </script>
